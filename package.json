@@ -1,0 +1,21 @@
+{
+  "name": "grammy-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsc && node dist/index.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@snwfdhmp/soundcloud-downloader": "^1.0.6",
+    "axios": "^1.13.4",
+    "dotenv": "^17.2.3",
+    "grammy": "^1.39.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "typescript": "^5.5.3"
+  },
+  "private": true
+}
