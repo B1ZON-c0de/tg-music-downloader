@@ -1,14 +1,14 @@
-export interface Command {
+export interface Command{
   name: string,
-  text:string,
+  text: string,
 }
 
-export interface Track {
+export interface Track{
   id: number,
   avatar_url: string | null,
   artwork_url: string | null,
   title: string,
-  user: {username:string},
+  user: { username: string },
   permalink_url: string,
   downloadable: boolean,
   media: {
@@ -18,14 +18,14 @@ export interface Track {
   duration: number
 }
 
-export interface Transcoding {
+export interface Transcoding{
   url: string,
   preset: string,
   duration: number,
   snipped: boolean,
   format: {
     protocol: string,
-    mime_type:string,
+    mime_type: string,
   },
   quality: string,
   is_legacy_transcoding: boolean,

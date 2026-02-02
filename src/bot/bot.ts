@@ -1,35 +1,42 @@
-import { Bot, InputFile } from "grammy";
+import { Bot, BotError, InputFile } from "grammy";
 import { getCommands } from "../config/commands";
 import { searchMusic } from "../actions/search-music";
-import { mapTracks } from "../helpers/map-tracks";
 import { Track } from "../types/types";
 import { downloadMusic } from "../actions/download-music";
 import { addNodeTags } from "../utils/add-node-tags";
 import { botErrorHandler } from "./bot-error";
+import { getInlineKeyboardTracks } from "../config/keyboard";
 
 export const startTelegramBot = (token: string) => {
   const bot = new Bot(token)
 
   botErrorHandler(bot)
 
-
   let currentTracks: Track[] = []
-  const regex = new RegExp(/^\d+$/)
+
   getCommands(bot)
 
-  bot.hears(regex, async ctx => {
+  bot.hears(/^Привет$/i, ctx => ctx.reply("Привет, чтобы узнать обо мне больше набери /info"))
 
-    const userChoice = Number(ctx.message?.text)
+  bot.on("message:text", async ctx => {
 
+    currentTracks = await searchMusic(ctx.message.text)
 
-    if (userChoice < 1 || userChoice > currentTracks.length){
-      await ctx.reply(`Выберите от 1 до ${ currentTracks.length }`)
+    if (currentTracks.length === 0){
+      await ctx.reply("Сначала выполните поиск")
       return
     }
+    await ctx.reply("Выберите трек: ", {
+      reply_markup: getInlineKeyboardTracks(currentTracks)
+    })
+
+  })
+
+  bot.callbackQuery(/^track_(\d+)$/, async ctx => {
+    const track = currentTracks.find(({ id }) => ctx.match[1])!
+
 
     const messageWait = await ctx.reply("Трек скачивается...",)
-
-    const track = currentTracks[Number(ctx.message?.text) - 1]
     const trackDuration = Math.floor(track.duration / 1000)
 
     try{
@@ -43,23 +50,14 @@ export const startTelegramBot = (token: string) => {
           duration: trackDuration,
         }
       )
+    } catch (e){
+      throw new BotError(e, ctx)
     } finally{
-      await ctx.api.deleteMessage(ctx.chatId, messageWait.message_id)
+      if (ctx.chatId){
+        await ctx.api.deleteMessage(ctx.chatId, messageWait.message_id)
+        await ctx.api.deleteMessage(ctx.chatId, Number(ctx.callbackQuery.message?.message_id))
+      }
     }
-
-  })
-
-  bot.hears(/^Привет$/i, ctx => ctx.reply("Привет, чтобы узнать обо мне больше набери /info"))
-
-  bot.on("message:text", async ctx => {
-
-    currentTracks = await searchMusic(ctx.message.text)
-
-    if (currentTracks.length === 0){
-      await ctx.reply("Сначала выполните поиск")
-      return
-    }
-    await ctx.reply(mapTracks(currentTracks))
 
   })
 
