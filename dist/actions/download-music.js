@@ -50,6 +50,7 @@ const axios_1 = __importDefault(require("axios"));
 const path = __importStar(require("node:path"));
 const fs = __importStar(require("node:fs"));
 const config_1 = require("../config/config");
+const pathToMusic = path.join(__dirname, "..", "..", "music");
 const CLIENT_ID = (0, config_1.getClientId)();
 const downloadMusic = (track) => __awaiter(void 0, void 0, void 0, function* () {
     const progressive = track.media.transcodings.find((t) => t.format.protocol === "progressive");
@@ -62,7 +63,7 @@ const downloadMusic = (track) => __awaiter(void 0, void 0, void 0, function* () 
         },
     });
     const response = yield axios_1.default.get(data.url, { responseType: "stream" });
-    const filePath = path.resolve(__dirname, `${track.title.replace(/ /g, "_")}.mp3`);
+    const filePath = path.resolve(pathToMusic, `${track.title.replace(/ /g, "_")}.mp3`);
     const writer = fs.createWriteStream(filePath);
     response.data.pipe(writer);
     yield new Promise((resolve, reject) => {

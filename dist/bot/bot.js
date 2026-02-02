@@ -16,31 +16,39 @@ const search_music_1 = require("../actions/search-music");
 const map_tracks_1 = require("../helpers/map-tracks");
 const download_music_1 = require("../actions/download-music");
 const add_node_tags_1 = require("../utils/add-node-tags");
+const bot_error_1 = require("./bot-error");
 const startTelegramBot = (token) => {
     const bot = new grammy_1.Bot(token);
+    (0, bot_error_1.botErrorHandler)(bot);
     let currentTracks = [];
-    const regex = new RegExp(`^[1-5}]$`);
+    const regex = new RegExp(/^\d+$/);
     (0, commands_1.getCommands)(bot);
     bot.hears(regex, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a, _b, _c;
-        if (!currentTracks || currentTracks.length === 0)
+        var _a, _b;
+        const userChoice = Number((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text);
+        if (userChoice < 1 || userChoice > currentTracks.length) {
+            yield ctx.reply(`Выберите от 1 до ${currentTracks.length}`);
             return;
-        if (!(Number((_a = ctx.message) === null || _a === void 0 ? void 0 : _a.text) >= 1) && !(Number((_b = ctx.message) === null || _b === void 0 ? void 0 : _b.text) <= currentTracks.length)) {
-            yield ctx.reply(`Выбирите от 1 до ${currentTracks.length}`);
         }
-        const track = currentTracks[Number((_c = ctx.message) === null || _c === void 0 ? void 0 : _c.text) - 1];
+        const messageWait = yield ctx.reply("Трек скачивается...");
+        const track = currentTracks[Number((_b = ctx.message) === null || _b === void 0 ? void 0 : _b.text) - 1];
         const trackDuration = Math.floor(track.duration / 1000);
-        const filePath = yield (0, download_music_1.downloadMusic)(track);
-        yield (0, add_node_tags_1.addNodeTags)(track, filePath);
-        yield ctx.replyWithAudio(new grammy_1.InputFile(filePath), {
-            duration: trackDuration,
-        });
+        try {
+            const filePath = yield (0, download_music_1.downloadMusic)(track);
+            yield (0, add_node_tags_1.addNodeTags)(track, filePath);
+            yield ctx.replyWithAudio(new grammy_1.InputFile(filePath), {
+                duration: trackDuration,
+            });
+        }
+        finally {
+            yield ctx.api.deleteMessage(ctx.chatId, messageWait.message_id);
+        }
     }));
     bot.hears(/^Привет$/i, ctx => ctx.reply("Привет, чтобы узнать обо мне больше набери /info"));
     bot.on("message", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         currentTracks = yield (0, search_music_1.searchMusic)(ctx.message.text || '');
-        if (!currentTracks) {
-            yield ctx.reply("По вашему запросу ничего не найдено...");
+        if (currentTracks.length === 0) {
+            yield ctx.reply("Сначала выполните поиск");
             return;
         }
         yield ctx.reply((0, map_tracks_1.mapTracks)(currentTracks));

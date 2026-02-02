@@ -27,12 +27,12 @@ const searchMusic = (query_1, ...args_1) => __awaiter(void 0, [query_1, ...args_
             },
         });
         if (res.data.collection.length === 0) {
-            return null;
+            return [];
         }
         return res.data.collection;
     }
     catch (e) {
-        return null;
+        return [];
     }
 });
 exports.searchMusic = searchMusic;

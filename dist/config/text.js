@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getHelpText = exports.getGreetingText = void 0;
+exports.getHelpText = exports.getGreetingText = exports.ErrorMessage = void 0;
 const constants_1 = require("./constants");
+exports.ErrorMessage = {
+    DEFAULT: "Ошибка в боте",
+    NO_STREAM: "Пока не можем скачивать аудио в данном формате..."
+};
 const getGreetingText = (name = "Друг") => {
     return `👋 Привет, ${name}!\n\n` +
         'Я тестовый бот для проверки функционала.\n' +

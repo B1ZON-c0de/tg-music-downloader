@@ -4,6 +4,8 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import { getClientId } from "../config/config";
 
+const pathToMusic = path.join(__dirname, "..","..","music")
+
 const CLIENT_ID = getClientId();
 
 export const downloadMusic = async (track: Track): Promise<string> => {
@@ -21,7 +23,7 @@ export const downloadMusic = async (track: Track): Promise<string> => {
   });
 
   const response = await axios.get(data.url, { responseType: "stream" });
-  const filePath = path.resolve(__dirname, `${ track.title.replace(/ /g, "_") }.mp3`);
+  const filePath = path.resolve(pathToMusic, `${ track.title.replace(/ /g, "_") }.mp3`);
   const writer = fs.createWriteStream(filePath);
 
   response.data.pipe(writer);
