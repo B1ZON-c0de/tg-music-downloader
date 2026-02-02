@@ -21,39 +21,7 @@ const startTelegramBot = (token) => {
     const bot = new grammy_1.Bot(token);
     (0, bot_error_1.botErrorHandler)(bot);
     let currentTracks = [];
-    const regex = new RegExp(/^\d+$/);
     (0, commands_1.getCommands)(bot);
-    // bot.hears(regex, async ctx => {
-    //
-    //   const userChoice = Number(ctx.message?.text)
-    //
-    //
-    //   if (userChoice < 1 || userChoice > currentTracks.length){
-    //     await ctx.reply(`Выберите от 1 до ${ currentTracks.length }`)
-    //     return
-    //   }
-    //
-    //   const messageWait = await ctx.reply("Трек скачивается...",)
-    //
-    //   const track = currentTracks[Number(ctx.message?.text) - 1]
-    //   const trackDuration = Math.floor(track.duration / 1000)
-    //
-    //   try{
-    //     const filePath = await downloadMusic(track)
-    //
-    //     await addNodeTags(track, filePath)
-    //
-    //     await ctx.replyWithAudio(
-    //       new InputFile(filePath),
-    //       {
-    //         duration: trackDuration,
-    //       }
-    //     )
-    //   } finally{
-    //     await ctx.api.deleteMessage(ctx.chatId, messageWait.message_id)
-    //   }
-    //
-    // })
     bot.hears(/^Привет$/i, ctx => ctx.reply("Привет, чтобы узнать обо мне больше набери /info"));
     bot.on("message:text", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         currentTracks = yield (0, search_music_1.searchMusic)(ctx.message.text);
@@ -61,13 +29,13 @@ const startTelegramBot = (token) => {
             yield ctx.reply("Сначала выполните поиск");
             return;
         }
-        const messageChoice = yield ctx.reply("Выберите трек: ", {
+        yield ctx.reply("Выберите трек: ", {
             reply_markup: (0, keyboard_1.getInlineKeyboardTracks)(currentTracks)
         });
     }));
     bot.callbackQuery(/^track_(\d+)$/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
-        const track = currentTracks.find(({ id }) => ctx.match[1]);
+        const track = currentTracks.find(({ id }) => id === Number(ctx.match[1]));
         const messageWait = yield ctx.reply("Трек скачивается...");
         const trackDuration = Math.floor(track.duration / 1000);
         try {
@@ -76,6 +44,9 @@ const startTelegramBot = (token) => {
             yield ctx.replyWithAudio(new grammy_1.InputFile(filePath), {
                 duration: trackDuration,
             });
+        }
+        catch (e) {
+            throw new grammy_1.BotError(e, ctx);
         }
         finally {
             if (ctx.chatId) {

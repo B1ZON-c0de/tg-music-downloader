@@ -33,7 +33,7 @@ export const startTelegramBot = (token: string) => {
   })
 
   bot.callbackQuery(/^track_(\d+)$/, async ctx => {
-    const track = currentTracks.find(({ id }) => ctx.match[1])!
+    const track = currentTracks.find(({ id }) => id === Number(ctx.match[1]))!
 
 
     const messageWait = await ctx.reply("Трек скачивается...",)
