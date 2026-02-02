@@ -1,6 +1,5 @@
 import { Command } from "../types/types";
 
 export const textCommands: Command[] = [
-  { name: '/info', text: "Информация" },
-  { name: '/help', text: "Помощь" },
+  { name: 'start', text: "О боте, как им пользоваться" },
 ]

@@ -3,8 +3,7 @@ import { getGreetingText, getHelpText } from "./text";
 
 export const getCommands = (bot: Bot) => {
   // Команды
-  bot.command("info", ctx => ctx.reply(getGreetingText(ctx.from?.first_name)))
-  bot.command('help', ctx => ctx.reply(getHelpText()))
+  bot.command("start", ctx => ctx.reply(getGreetingText(ctx.from?.first_name), { parse_mode: "HTML" },))
   // Дебаг
   console.log("Активные комманды: " + "\n" + getHelpText())
 }

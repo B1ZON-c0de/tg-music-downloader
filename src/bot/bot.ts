@@ -8,10 +8,16 @@ import { botErrorHandler } from "./bot-error";
 import { getInlineKeyboardTracks } from "../config/keyboard";
 import { cleanOldTracks } from "../utils/clear-old-tracks";
 import path from "node:path";
+import { textCommands } from "../config/constants";
 
 export const startTelegramBot = (token: string) => {
   const bot = new Bot(token)
   const pathToMusic = path.join(__dirname, "..", "..", "music")
+
+  bot.api.setMyCommands([ ...textCommands.map(textCommand => ({
+    command: textCommand.name,
+    description: textCommand.text
+  })) ])
 
   botErrorHandler(bot)
 
@@ -36,6 +42,7 @@ export const startTelegramBot = (token: string) => {
   })
 
   bot.callbackQuery(/^track_(\d+)$/, async ctx => {
+    await ctx.answerCallbackQuery();
     const track = currentTracks.find(({ id }) => id === Number(ctx.match[1]))!
 
 
