@@ -18,13 +18,21 @@ const config_1 = require("../config/config");
 const CLIENT_ID = (0, config_1.getClientId)();
 const SOUND_CLOUD_URL_SEARCH = (0, config_1.getSoundCloudUrlSearch)();
 const searchMusic = (query_1, ...args_1) => __awaiter(void 0, [query_1, ...args_1], void 0, function* (query, limit = 5) {
-    const res = yield axios_1.default.get(SOUND_CLOUD_URL_SEARCH, {
-        params: {
-            q: query,
-            limit,
-            client_id: CLIENT_ID
-        },
-    });
-    return res.data.collection;
+    try {
+        const res = yield axios_1.default.get(SOUND_CLOUD_URL_SEARCH, {
+            params: {
+                q: query,
+                limit,
+                client_id: CLIENT_ID
+            },
+        });
+        if (res.data.collection.length === 0) {
+            return null;
+        }
+        return res.data.collection;
+    }
+    catch (e) {
+        return null;
+    }
 });
 exports.searchMusic = searchMusic;

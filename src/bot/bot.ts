@@ -4,26 +4,35 @@ import { searchMusic } from "../actions/search-music";
 import { mapTracks } from "../helpers/map-tracks";
 import { Track } from "../types/types";
 import { downloadMusic } from "../actions/download-music";
+import { addNodeTags } from "../utils/add-node-tags";
 
 export const startTelegramBot = (token: string) => {
   const bot = new Bot(token)
 
-  let currentTracks: Track[] = []
+
+  let currentTracks: Track[] | null = []
+  const regex = new RegExp(`^[1-5}]$`)
 
   getCommands(bot)
 
-  bot.hears(/^[1-5]$/g, async ctx => {
+  bot.hears(regex, async ctx => {
+
+    if(!currentTracks || currentTracks.length === 0) return;
+
+    if(!(Number(ctx.message?.text) >= 1) && !(Number(ctx.message?.text) <= currentTracks.length)){
+      await ctx.reply(`Выбирите от 1 до ${currentTracks.length}`)
+    }
 
     const track = currentTracks[Number(ctx.message?.text) - 1]
-    const trackTitle = currentTracks[Number(ctx.message?.text) - 1].title
-    const trackArtistUsername = currentTracks[Number(ctx.message?.text) - 1].user.username
-    const trackDuration = Math.floor(currentTracks[Number(ctx.message?.text) - 1].duration / 1000)
+    const trackDuration = Math.floor(track.duration / 1000)
+
+    const filePath = await downloadMusic(track)
+
+    await addNodeTags(track, filePath)
 
     await ctx.replyWithAudio(
-      new InputFile(await downloadMusic(track)),
+      new InputFile(filePath),
       {
-        caption: trackTitle,
-        performer: trackArtistUsername,
         duration: trackDuration,
       }
     )
@@ -34,6 +43,10 @@ export const startTelegramBot = (token: string) => {
 
   bot.on("message", async ctx => {
     currentTracks = await searchMusic(ctx.message.text || '')
+    if (!currentTracks) {
+      await ctx.reply("По вашему запросу ничего не найдено...")
+      return
+    }
     await ctx.reply(mapTracks(currentTracks))
   })
 

@@ -5,6 +5,8 @@ export interface Command {
 
 export interface Track {
   id: number,
+  avatar_url: string | null,
+  artwork_url: string | null,
   title: string,
   user: {username:string},
   permalink_url: string,
