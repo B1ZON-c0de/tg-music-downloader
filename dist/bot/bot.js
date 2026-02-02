@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startTelegramBot = void 0;
 const grammy_1 = require("grammy");
@@ -17,8 +20,11 @@ const download_music_1 = require("../actions/download-music");
 const add_node_tags_1 = require("../utils/add-node-tags");
 const bot_error_1 = require("./bot-error");
 const keyboard_1 = require("../config/keyboard");
+const clear_old_tracks_1 = require("../utils/clear-old-tracks");
+const node_path_1 = __importDefault(require("node:path"));
 const startTelegramBot = (token) => {
     const bot = new grammy_1.Bot(token);
+    const pathToMusic = node_path_1.default.join(__dirname, "..", "..", "music");
     (0, bot_error_1.botErrorHandler)(bot);
     let currentTracks = [];
     (0, commands_1.getCommands)(bot);
@@ -39,11 +45,12 @@ const startTelegramBot = (token) => {
         const messageWait = yield ctx.reply("Трек скачивается...");
         const trackDuration = Math.floor(track.duration / 1000);
         try {
-            const filePath = yield (0, download_music_1.downloadMusic)(track);
+            const filePath = yield (0, download_music_1.downloadMusic)(track, pathToMusic);
             yield (0, add_node_tags_1.addNodeTags)(track, filePath);
             yield ctx.replyWithAudio(new grammy_1.InputFile(filePath), {
                 duration: trackDuration,
             });
+            (0, clear_old_tracks_1.cleanOldTracks)(pathToMusic);
         }
         catch (e) {
             throw new grammy_1.BotError(e, ctx);

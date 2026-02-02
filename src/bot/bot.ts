@@ -6,9 +6,12 @@ import { downloadMusic } from "../actions/download-music";
 import { addNodeTags } from "../utils/add-node-tags";
 import { botErrorHandler } from "./bot-error";
 import { getInlineKeyboardTracks } from "../config/keyboard";
+import { cleanOldTracks } from "../utils/clear-old-tracks";
+import path from "node:path";
 
 export const startTelegramBot = (token: string) => {
   const bot = new Bot(token)
+  const pathToMusic = path.join(__dirname, "..", "..", "music")
 
   botErrorHandler(bot)
 
@@ -40,7 +43,7 @@ export const startTelegramBot = (token: string) => {
     const trackDuration = Math.floor(track.duration / 1000)
 
     try{
-      const filePath = await downloadMusic(track)
+      const filePath = await downloadMusic(track, pathToMusic)
 
       await addNodeTags(track, filePath)
 
@@ -50,6 +53,9 @@ export const startTelegramBot = (token: string) => {
           duration: trackDuration,
         }
       )
+
+      cleanOldTracks(pathToMusic)
+
     } catch (e){
       throw new BotError(e, ctx)
     } finally{
@@ -57,6 +63,7 @@ export const startTelegramBot = (token: string) => {
         await ctx.api.deleteMessage(ctx.chatId, messageWait.message_id)
         await ctx.api.deleteMessage(ctx.chatId, Number(ctx.callbackQuery.message?.message_id))
       }
+
     }
 
   })

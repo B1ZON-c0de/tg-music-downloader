@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSoundCloudUrlSearch = exports.getClientId = exports.getBotToken = void 0;
+exports.getMaxTracks = exports.getSoundCloudUrlSearch = exports.getClientId = exports.getBotToken = void 0;
 require("dotenv/config");
 const getBotToken = () => {
     return process.env.BOT_TOKEN || "";
@@ -14,3 +14,7 @@ const getSoundCloudUrlSearch = () => {
     return process.env.SOUND_CLOUD_URL_SEARCH || "";
 };
 exports.getSoundCloudUrlSearch = getSoundCloudUrlSearch;
+const getMaxTracks = () => {
+    return Number(process.env.MAX_TRACKS) || 5;
+};
+exports.getMaxTracks = getMaxTracks;

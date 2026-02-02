@@ -11,3 +11,7 @@ export const getClientId = () => {
 export const getSoundCloudUrlSearch = () => {
   return process.env.SOUND_CLOUD_URL_SEARCH || ""
 }
+
+export const getMaxTracks = () => {
+  return Number(process.env.MAX_TRACKS) || 5
+}
