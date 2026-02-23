@@ -1,15 +1,33 @@
+FROM node:18-slim AS builder
 
-FROM node:20-alpine
+WORKDIR /app
+
+COPY package*.json ./
+COPY tsconfig.json ./
+
+RUN npm install
+
+COPY src/ ./src/
+
+RUN npm run build
+
+FROM node:18-slim
+
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY package*.json ./
 
+RUN npm ci --only=production
 
-RUN npm install --production
+COPY --from=builder /app/dist ./dist
 
-COPY . .
+RUN mkdir -p /app/music
 
-RUN npx tsc
+RUN useradd -m -u 1000 nodeuser && chown -R nodeuser:nodeuser /app
+USER nodeuser
 
 CMD ["node", "dist/index.js"]
