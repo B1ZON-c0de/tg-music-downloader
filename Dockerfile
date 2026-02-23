@@ -1,33 +1,38 @@
-FROM node:18-slim AS builder
+# ===== Build stage =====
+FROM node:20 AS builder
 
 WORKDIR /app
 
+# Установка ffmpeg (нужен для аудио стриминга)
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
+# Копируем зависимости
 COPY package*.json ./
 COPY tsconfig.json ./
 
+# Устанавливаем зависимости (убедиcь, что в package.json нет link:)
 RUN npm install
 
-COPY src/ ./src/
+# Копируем исходники
+COPY src ./src
 
+# Компилируем TypeScript
 RUN npm run build
 
-FROM node:18-slim
 
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+# ===== Production stage =====
+FROM node:20-slim
 
 WORKDIR /app
 
-COPY package*.json ./
+# ffmpeg обязателен для работы с аудио
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
-RUN npm ci --only=production
+# Копируем только build результат
+COPY package*.json ./
+RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
-RUN mkdir -p /app/music
-
-RUN useradd -m -u 1000 nodeuser && chown -R nodeuser:nodeuser /app
-USER nodeuser
-
+# Запуск бота
 CMD ["node", "dist/index.js"]
