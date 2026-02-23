@@ -1,4 +1,4 @@
-# Telegram SoundCloud Music Downloader Bot
+# Telegram Music Downloader Bot
 
 Бот для Telegram, который ищет треки на SoundCloud и скачивает их в MP3. Просто отправляешь название — получаешь аудиофайл.
 
