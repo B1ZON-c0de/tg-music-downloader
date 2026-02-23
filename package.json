@@ -12,7 +12,6 @@
     "axios": "^1.13.4",
     "dotenv": "^17.2.3",
     "grammy": "^1.39.3",
-    "grammy-test": "link:",
     "m3u8stream": "^0.8.6",
     "node-id3": "^0.2.9"
   },

@@ -20,9 +20,6 @@ importers:
       grammy:
         specifier: ^1.39.3
         version: 1.39.3
-      grammy-test:
-        specifier: 'link:'
-        version: 'link:'
       m3u8stream:
         specifier: ^0.8.6
         version: 0.8.6
