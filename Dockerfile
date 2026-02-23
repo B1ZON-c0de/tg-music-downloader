@@ -25,9 +25,6 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# ffmpeg обязателен для работы с аудио
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
-
 # Копируем только build результат
 COPY package*.json ./
 RUN npm install --omit=dev
