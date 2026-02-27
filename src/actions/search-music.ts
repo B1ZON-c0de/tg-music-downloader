@@ -13,6 +13,9 @@ export const searchMusic = async (query: string, limit = 5): Promise<Track[]> =>
         limit,
         client_id: CLIENT_ID
       },
+      headers: {
+        cookie: "datadome=F9LPHUlgqWwSBbsaaYomXB8PxR5N5u6o9IqQ32P4GuXXSIXKKFADBszs5mka1nMDyF9yuAdwt~~3SpWpnsZzi0AsFxRyqd8mqjzqs8Szl86WrhRhjYklbFS~a5mr3_Ev"
+      }
     });
     if (res.data.collection.length === 0){
       return [];
